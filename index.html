@@ -244,7 +244,7 @@
                 const response = await fetch('https://api.imgur.com/3/image', {
                     method: 'POST',
                     headers: {
-                        Authorization: 'Client-ID YOUR_NEW_CLIENT_ID', // Replace with your new Imgur Client ID
+                        Authorization: 'Client-ID 6d93506cc27e293', // Updated Imgur Client ID
                     },
                     body: formData,
                 });
@@ -299,8 +299,8 @@
             const total = document.getElementById('summary-total').innerText;
             const imageUrl = document.getElementById('whatsapp-button').getAttribute('data-image-url');
 
-            // Seller's WhatsApp number (replace with the actual number)
-            const sellerWhatsAppNumber = '60189800195'; // Updated WhatsApp number
+            // Seller's WhatsApp number
+            const sellerWhatsAppNumber = '60189800195'; // Updated WhatsApp number (same as provided)
 
             // Format the WhatsApp message
             let message = `*Order Details:*\n\n` +
