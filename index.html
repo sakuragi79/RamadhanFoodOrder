@@ -287,7 +287,7 @@
             }
         }
 
-        // Function to send order to WhatsApp
+        // Function to send order to WhatsApp and reset page
         function sendOrderToWhatsApp() {
             // Get sender details
             const senderName = document.getElementById('name').value;
@@ -300,16 +300,16 @@
             const imageUrl = document.getElementById('whatsapp-button').getAttribute('data-image-url');
 
             // Seller's WhatsApp number
-            const sellerWhatsAppNumber = '60189800195'; // Updated WhatsApp number (same as provided)
+            const sellerWhatsAppNumber = '60189800195';
 
             // Format the WhatsApp message
             let message = `*Order Details:*\n\n` +
-                           `*Sender Information:*\n` +
-                           `Name: ${senderName}\n` +
-                           `Phone: ${senderPhone}\n` +
-                           `Address: ${senderAddress}\n\n` +
-                           `*Order Summary:*\n${orderSummary}\n${total}\n\n` +
-                           `*Payment Slip:* ${imageUrl}\n\n`;
+                          `*Sender Information:*\n` +
+                          `Name: ${senderName}\n` +
+                          `Phone: ${senderPhone}\n` +
+                          `Address: ${senderAddress}\n\n` +
+                          `*Order Summary:*\n${orderSummary}\n${total}\n\n` +
+                          `*Payment Slip:* ${imageUrl}\n\n`;
 
             const encodedMessage = encodeURIComponent(message);
 
@@ -318,6 +318,19 @@
 
             // Open WhatsApp in a new tab
             window.open(whatsappUrl, '_blank');
+
+            // Reset the page to initial state
+            document.getElementById('order-summary').style.display = 'none';
+            document.getElementById('order-form').style.display = 'block';
+            document.getElementById('whatsapp-button').style.display = 'none';
+            document.getElementById('reminder').style.display = 'none';
+            document.getElementById('payment-slip-preview').style.display = 'none';
+            document.getElementById('payment-slip-preview').src = '#';
+            
+            // Reset the form
+            document.getElementById('order-form').reset();
+            document.getElementById('ce-date').textContent = 'CE Date: ';
+            document.getElementById('day-name').textContent = 'Day: ';
         }
 
         // Event listener for DOMContentLoaded
