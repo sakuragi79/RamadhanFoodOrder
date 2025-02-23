@@ -6,7 +6,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ramadan Food Order Confirmation</title>
     <style>
-        /* Your existing CSS styles */
+        /* Basic Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .pack {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .menu-group {
+            margin-bottom: 15px;
+        }
+
+        .menu-group-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .menu-item {
+            margin-bottom: 5px;
+        }
+
+        #order-summary {
+            display: none;
+            margin-top: 20px;
+        }
+
+        #qr-code-image {
+            max-width: 150px;
+            max-height: 150px;
+            margin-top: 10px;
+        }
+
+        #payment-slip-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #payment-section {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .reminder {
+            color: #d9534f; /* Red color for emphasis */
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .early-bird {
+            color: #4CAF50; /* Green color for emphasis */
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 20px;
+            }
+
+            .pack {
+                padding: 8px;
+            }
+
+            button {
+                width: 100%;
+                padding: 12px;
+            }
+        }
     </style>
     <script>
         // Define Ramadan start and end dates for 2025
@@ -149,7 +244,7 @@
                 const response = await fetch('https://api.imgur.com/3/image', {
                     method: 'POST',
                     headers: {
-                        Authorization: 'Client-ID 6d93506cc27e293', // Your Imgur Client ID
+                        Authorization: 'Client-ID YOUR_NEW_CLIENT_ID', // Replace with your new Imgur Client ID
                     },
                     body: formData,
                 });
@@ -263,7 +358,138 @@
 </head>
 
 <body>
-    <!-- Your existing HTML content -->
+
+    <h1>Ramadan Food Order Confirmation</h1>
+    <p class="early-bird">Early Bird Offer: The first 50 orders will receive a gift!</p>
+
+    <!-- Order Form -->
+    <form id="order-form">
+        <label for="ramadan-day">Select Ramadan Day:</label>
+        <select id="ramadan-day" name="ramadan-day" required>
+            <option value="">Select a day</option>
+        </select>
+        <p id="ce-date">CE Date: </p>
+        <p id="day-name">Day: </p>
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="tel">Phone Number:</label>
+        <input type="tel" id="tel" name="tel" required>
+
+        <label for="address">Address:</label>
+        <textarea id="address" name="address" rows="4" required></textarea>
+
+        <!-- Ramadan Pack Options -->
+        <div class="pack">
+            <div class="pack-title">Ramadan Pack Specific (RPS) - RM 6.50</div>
+            <div class="menu-group">
+                <div class="menu-group-title">Main Dish</div>
+                <div class="menu-item">
+                    <label><input type="radio" name="rps" value="nasilemak"> Nasi Lemak Pandan Ayam</label>
+                </div>
+                <div class="menu-item">
+                    <label><input type="radio" name="rps" value="nasikakvogue"> Nasi Kak Vogue</label>
+                </div>
+                <div class="menu-item">
+                    <label><input type="radio" name="rps" value="lontong"> Lontong</label>
+                </div>
+                <div class="menu-item">
+                    <label><input type="radio" name="rps" value="bubur"> Bubur Nasi Berlauk</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="pack">
+            <div class="pack-title">Ramadan Pack 2 Compartment (RP2C) - RM 5</div>
+            <div class="menu-group">
+                <div class="menu-group-title">Main Dish</div>
+                <div class="menu-item">
+                    <label><input type="radio" name="rp2c" value="nasigoreng"> Nasi Goreng</label>
+                </div>
+            </div>
+            <div class="menu-group">
+                <div class="menu-group-title">Kuih</div>
+                <div class="menu-item">
+                    <label><input type="checkbox" name="rp2c[]" value="karipap"> Kuih Karipap</label>
+                </div>
+                <div class="menu-item">
+                    <label><input type="checkbox" name="rp2c[]" value="paugoreng"> Kuih Pau Goreng Inti Kacang Merah</label>
+                </div>
+                <div class="menu-item">
+                    <label><input type="checkbox" name="rp2c[]" value="apamkampung"> Kuih Apam Kampung</label>
+                </div>
+                <div class="menu-item">
+                    <label><input type="checkbox" name="rp2c[]" value="lapisnyonya"> Kuih Lapis Nyonya</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="pack">
+            <div class="pack-title">Ramadan Pack Roti (RPR) - RM 5</div>
+            <div class="menu-group">
+                <div class="menu-group-title">Main Dish</div>
+                <div class="menu-item">
+                    <label><input type="radio" name="rpr" value="rotiburger"> Roti Burger Korean Garlic Cheese</label>
+                </div>
+                <div class="menu-item">
+                    <label><input type="radio" name="rpr" value="rotibeef"> Roti Beef/Ayam Ramly Huzza</label>
+                </div>
+                <div class="menu-item">
+                    <label><input type="radio" name="rpr" value="rotibenjo"> Roti Benjo Huzza</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="pack">
+            <div class="pack-title">Ramadan Pack Nasi Putih Berlauk (RPNPB) - RM 10</div>
+            <div class="menu-group">
+                <div class="menu-group-title">Main Dish</div>
+                <div class="menu-item">
+                    <label><input type="radio" name="rpnpb" value="ayamgoreng"> Ayam Goreng Berlado</label>
+                </div>
+                <div class="menu-item">
+                    <label><input type="radio" name="rpnpb" value="ayamlemak"> Masak Lemak Cili Api Ayam</label>
+                </div>
+                <div class="menu-item">
+                    <label><input type="radio" name="rpnpb" value="ikankari"> Ikan Masak Kari Asam Pedas</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="pack">
+            <div class="pack-title">Ramadan Pack Combo - Add RM 3</div>
+            <div class="menu-group">
+                <div class="menu-item">
+                    <label><input type="checkbox" name="combo" value="tehais"> Teh Ais Kaw</label>
+                </div>
+                <div class="menu-item">
+                    <label><input type="checkbox" name="combo" value="fruitcuts"> Fruit Cuts</label>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" onclick="proceedToSummary()">Proceed</button>
+    </form>
+
+    <!-- Order Summary -->
+    <div id="order-summary">
+        <h2>Order Summary</h2>
+        <ul id="summary-list"></ul>
+        <p id="summary-total"></p>
+        <img id="qr-code-image" src="https://i.imgur.com/6S0vvWu.jpeg" alt="QR Code">
+        <p>Scan the QR code to make payment.</p>
+
+        <div id="payment-section">
+            <label for="payment-slip">Upload Payment Slip:</label>
+            <input type="file" id="payment-slip" name="payment-slip" accept="image/*" required>
+            <img id="payment-slip-preview" src="#" alt="Payment Slip Preview">
+            <button type="button" onclick="submitPaymentSlip()">Submit Payment Slip</button>
+            <button id="whatsapp-button" type="button" onclick="sendOrderToWhatsApp()" style="display: none;">Send Order to WhatsApp</button>
+            <p id="reminder" class="reminder" style="display: none;">Don't forget to click "Send Order to WhatsApp" to confirm your order!</p>
+        </div>
+    </div>
+
 </body>
 
 </html>
