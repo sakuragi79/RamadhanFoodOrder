@@ -1,399 +1,578 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ramadan Food Order Confirmation</title>
+    <title>Food Order Confirmation</title>
     <style>
-        /* Basic Styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 20px;
             padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
         }
-
         h1 {
             text-align: center;
             font-size: 24px;
+            color: #1a73e8;
         }
-
         .pack {
-            border: 1px solid #ccc;
-            padding: 10px;
+            border: 1px solid #ddd;
+            padding: 15px;
             margin-bottom: 20px;
-            border-radius: 5px;
+            border-radius: 8px;
+            background-color: #fff;
         }
-
         .menu-group {
             margin-bottom: 15px;
         }
-
         .menu-group-title {
             font-weight: bold;
             margin-bottom: 5px;
+            color: #1a73e8;
         }
-
         .menu-item {
             margin-bottom: 5px;
+            display: flex;
+            align-items: center;
         }
-
+        .menu-item input[type="number"] {
+            margin-left: 10px;
+            width: 60px;
+        }
         #order-summary {
             display: none;
             margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
         }
-
         #qr-code-image {
             max-width: 150px;
             max-height: 150px;
             margin-top: 10px;
         }
-
         #payment-slip-preview {
             max-width: 200px;
             max-height: 200px;
             margin-top: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             border-radius: 5px;
+            display: none;
         }
-
         #payment-section {
             margin-top: 20px;
         }
-
         button {
             padding: 10px 20px;
-            background-color: #4CAF50;
+            background-color: #1a73e8;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             margin-top: 10px;
         }
-
         button:hover {
-            background-color: #45a049;
+            background-color: #1557b0;
         }
-
         .reminder {
-            color: #d9534f; /* Red color for emphasis */
+            color: #d9534f;
             font-weight: bold;
             margin-top: 10px;
+            display: none;
         }
-
         .early-bird {
-            color: #4CAF50; /* Green color for emphasis */
+            color: #4CAF50;
             font-weight: bold;
             margin-top: 10px;
         }
-
-        /* Responsive Design */
+        .success-message {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
         @media (max-width: 600px) {
-            h1 {
-                font-size: 20px;
-            }
-
-            .pack {
-                padding: 8px;
-            }
-
-            button {
-                width: 100%;
-                padding: 12px;
-            }
+            h1 { font-size: 20px; }
+            .pack { padding: 10px; }
+            button { width: 100%; padding: 12px; }
         }
     </style>
     <script>
-        // Define Ramadan start and end dates for 2025
+        console.log('Script loaded');
+
         const ramadanStartDate = new Date('2025-03-01');
-        const ramadanEndDate = new Date('2025-03-30');
+        const ramadanDays = generateRamadanDays();
 
-        // Function to check if the selected date is within Ramadan
-        function isRamadan(date) {
-            return date >= ramadanStartDate && date <= ramadanEndDate;
-        }
-
-        // Function to get the day name from a date
         function getDayName(date) {
-            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            return days[date.getDay()];
+            return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][date.getDay()];
         }
 
-        // Function to generate Ramadan days with CE dates
         function generateRamadanDays() {
-            const ramadanDays = [];
+            console.log('Generating Ramadan days');
+            const days = [];
             const currentDate = new Date(ramadanStartDate);
-
             for (let day = 1; day <= 30; day++) {
                 const ceDate = currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                ramadanDays.push({ day, ceDate });
+                days.push({ day, ceDate });
                 currentDate.setDate(currentDate.getDate() + 1);
             }
-
-            return ramadanDays;
+            return days;
         }
 
-        // Function to update the selected date and display CE date
         function updateSelectedDate() {
+            console.log('updateSelectedDate called');
             const ramadanDaySelect = document.getElementById('ramadan-day');
             const ceDateDisplay = document.getElementById('ce-date');
             const dayNameDisplay = document.getElementById('day-name');
-            const selectedDay = ramadanDaySelect.value;
+            if (!ramadanDaySelect || !ceDateDisplay || !dayNameDisplay) {
+                console.error('Missing elements in updateSelectedDate:', { ramadanDaySelect, ceDateDisplay, dayNameDisplay });
+                return;
+            }
 
+            const selectedDay = ramadanDaySelect.value;
+            console.log('Selected day in update:', selectedDay);
             if (selectedDay) {
-                const ramadanDays = generateRamadanDays();
                 const selectedDate = ramadanDays[selectedDay - 1];
                 ceDateDisplay.textContent = `CE Date: ${selectedDate.ceDate}`;
-
-                // Get the day name
                 const date = new Date(ramadanStartDate);
                 date.setDate(ramadanStartDate.getDate() + (selectedDay - 1));
-                const dayName = getDayName(date);
-                dayNameDisplay.textContent = `Day: ${dayName}`;
+                dayNameDisplay.textContent = `Day: ${getDayName(date)}`;
             } else {
                 ceDateDisplay.textContent = 'CE Date: ';
                 dayNameDisplay.textContent = 'Day: ';
             }
         }
 
-        // Function to calculate the total price
         function calculateTotal() {
+            console.log('calculateTotal called');
             let total = 0;
+            const packs = {
+                'rps': 6.50,
+                'rp2c': 5.00,
+                'rpr': 5.00,
+                'rpnpb': 10.00,
+                'combo': 3.00
+            };
 
-            // Calculate RPS (Ramadan Pack Specific)
-            const rpsSelected = document.querySelector('input[name="rps"]:checked');
-            if (rpsSelected) {
-                total += 6.50;
+            Object.keys(packs).forEach(name => {
+                const checkedItem = document.querySelector(`input[name="${name}"]:checked`);
+                if (checkedItem) {
+                    console.log(`Adding ${name}: ${packs[name]}`);
+                    total += packs[name];
+                }
+            });
+
+            const ayamGorengQty = document.getElementById('ayam-goreng-qty');
+            const telurGorengQty = document.getElementById('telur-goreng-qty');
+            const ikanGorengQty = document.getElementById('ikan-goreng-qty');
+            if (!ayamGorengQty || !telurGorengQty || !ikanGorengQty) {
+                console.error('Missing qty inputs:', { ayamGorengQty, telurGorengQty, ikanGorengQty });
+                return 0;
             }
+            const ayamQty = parseInt(ayamGorengQty.value) || 0;
+            const telurQty = parseInt(telurGorengQty.value) || 0;
+            const ikanQty = parseInt(ikanGorengQty.value) || 0;
+            console.log(`Side dishes - Ayam: ${ayamQty} x 3.50, Telur: ${telurQty} x 1.50, Ikan: ${ikanQty} x 4.00`);
+            total += ayamQty * 3.50;
+            total += telurQty * 1.50;
+            total += ikanQty * 4.00;
 
-            // Calculate RP2C (Ramadan Pack 2 Compartment)
-            const rp2cSelected = document.querySelector('input[name="rp2c"]:checked');
-            if (rp2cSelected) {
-                total += 5.00;
-            }
-
-            // Calculate RPR (Ramadan Pack Roti)
-            const rprSelected = document.querySelector('input[name="rpr"]:checked');
-            if (rprSelected) {
-                total += 5.00;
-            }
-
-            // Calculate RPNPB (Ramadan Pack Nasi Putih Berlauk)
-            const rpnpbSelected = document.querySelector('input[name="rpnpb"]:checked');
-            if (rpnpbSelected) {
-                total += 10.00;
-            }
-
-            // Calculate combo add-ons
-            const comboAddon = document.querySelector('input[name="combo"]:checked');
-            if (comboAddon) {
-                total += 3.00;
-            }
-
+            document.querySelectorAll('input[name="kuih"]:checked').forEach(item => {
+                const qtyInput = document.getElementById(`${item.value}-qty`);
+                if (!qtyInput) {
+                    console.warn('No qty input for kuih:', item);
+                    return;
+                }
+                const qty = parseInt(qtyInput.value) || 0;
+                console.log(`Kuih ${item.value}: ${qty} x 1.00`);
+                total += qty * 1.00;
+            });
+            console.log('Calculated total:', total);
             return total;
         }
 
-        // Function to proceed to the order summary
         function proceedToSummary() {
-            const ramadanDaySelect = document.getElementById('ramadan-day');
-            const selectedDay = ramadanDaySelect.value;
+            console.log('proceedToSummary started');
+            try {
+                const orderForm = document.getElementById('order-form');
+                const orderSummary = document.getElementById('order-summary');
+                const ramadanDaySelect = document.getElementById('ramadan-day');
+                const summaryList = document.getElementById('summary-list');
+                const summaryTotal = document.getElementById('summary-total');
+                const notes = document.getElementById('notes');
 
-            if (!selectedDay) {
-                alert('Please select a day of Ramadan.');
-                return;
+                console.log('Checking elements:', {
+                    orderForm: !!orderForm,
+                    orderSummary: !!orderSummary,
+                    ramadanDaySelect: !!ramadanDaySelect,
+                    summaryList: !!summaryList,
+                    summaryTotal: !!summaryTotal,
+                    notes: !!notes
+                });
+
+                if (!orderForm || !orderSummary || !ramadanDaySelect || !summaryList || !summaryTotal || !notes) {
+                    throw new Error('One or more required elements are missing');
+                }
+
+                const selectedDay = ramadanDaySelect.value;
+                console.log('Selected Day:', selectedDay);
+                if (!selectedDay) {
+                    console.log('No day selected');
+                    alert('Please select a day of Ramadan.');
+                    return;
+                }
+
+                const date = new Date(ramadanStartDate);
+                date.setDate(ramadanStartDate.getDate() + (selectedDay - 1));
+                const dayName = getDayName(date);
+                console.log('Day Name:', dayName);
+
+                if (!['Monday', 'Tuesday', 'Wednesday'].includes(dayName)) {
+                    console.log('Invalid day:', dayName);
+                    alert('Orders are only processed on Monday, Tuesday, and Wednesday. Please select a valid day.');
+                    return;
+                }
+
+                console.log('Populating summary');
+                summaryList.innerHTML = '';
+                const packTitles = {
+                    'rps': 'RPS',
+                    'rp2c': 'RP2C',
+                    'rpr': 'RPR',
+                    'rpnpb': 'RPNPB',
+                    'combo': 'Combo'
+                };
+                const itemsByPack = {};
+
+                const selectedItems = document.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked');
+                console.log('Selected items count:', selectedItems.length);
+                selectedItems.forEach((item, index) => {
+                    console.log(`Item ${index}:`, item);
+                    if (!item.labels || !item.labels[0]) {
+                        console.warn(`Item ${index} has no label`);
+                        return;
+                    }
+                    const packName = item.name;
+                    let packTitle = packTitles[packName] || 'Unknown';
+                    let qtyInput = item.parentElement.querySelector('input[type="number"]');
+                    let qty = 1;
+
+                    if (packName === 'kuih') {
+                        packTitle = 'RP2C'; // Nest kuih under RP2C
+                        qtyInput = document.getElementById(`${item.value}-qty`);
+                        qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
+                        console.log(`Kuih item ${item.value} qty input:`, qtyInput ? qtyInput.value : 'N/A', 'Parsed qty:', qty);
+                    } else {
+                        qty = 1; // Radio buttons and combo items default to 1
+                    }
+
+                    const itemText = `${item.labels[0].textContent.trim()} (Qty: ${qty})`;
+                    if (!itemsByPack[packTitle]) {
+                        itemsByPack[packTitle] = [];
+                    }
+                    itemsByPack[packTitle].push(itemText);
+                });
+
+                for (const pack in itemsByPack) {
+                    const liPack = document.createElement('li');
+                    liPack.textContent = pack;
+                    liPack.style.fontWeight = 'bold';
+                    summaryList.appendChild(liPack);
+                    itemsByPack[pack].forEach(itemText => {
+                        const liItem = document.createElement('li');
+                        liItem.textContent = `- ${itemText}`;
+                        summaryList.appendChild(liItem);
+                    });
+                }
+
+                const notesText = notes.value.trim();
+                if (notesText) {
+                    const liNotes = document.createElement('li');
+                    liNotes.textContent = 'Notes:';
+                    liNotes.style.fontWeight = 'bold';
+                    summaryList.appendChild(liNotes);
+                    const liNotesText = document.createElement('li');
+                    liNotesText.textContent = `- ${notesText}`;
+                    summaryList.appendChild(liNotesText);
+                }
+
+                const total = calculateTotal();
+                console.log('Total:', total);
+                summaryTotal.textContent = `Total: RM ${total.toFixed(2)}`;
+
+                console.log('Switching UI');
+                orderForm.style.display = 'none';
+                orderSummary.style.display = 'block';
+                console.log('proceedToSummary completed');
+            } catch (error) {
+                console.error('Error in proceedToSummary:', error.stack);
+                alert(`Error: ${error.message}`);
             }
-
-            // Check if the selected day is Monday, Tuesday, or Wednesday
-            const date = new Date(ramadanStartDate);
-            date.setDate(ramadanStartDate.getDate() + (selectedDay - 1));
-            const dayName = getDayName(date);
-
-            if (!['Monday', 'Tuesday', 'Wednesday'].includes(dayName)) {
-                alert('Orders are only processed on Monday, Tuesday, and Wednesday. Please select a valid day.');
-                return;
-            }
-
-            // 1. Calculate and display order summary
-            const summaryList = document.getElementById('summary-list');
-            summaryList.innerHTML = ''; // Clear previous summary
-
-            // Add selected items to summary
-            const selectedItems = document.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked');
-            selectedItems.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = item.labels[0].textContent; // Get label text
-                summaryList.appendChild(li);
-            });
-
-            const total = calculateTotal();
-            document.getElementById('summary-total').textContent = `Total: RM ${total.toFixed(2)}`;
-
-            // 2. Hide the initial order form
-            document.getElementById('order-form').style.display = 'none';
-
-            // 3. Show the summary section
-            document.getElementById('order-summary').style.display = 'block';
         }
 
-        // Function to handle payment slip upload using Imgur API
         async function uploadPaymentSlip(file) {
+            console.log('uploadPaymentSlip called');
             const formData = new FormData();
             formData.append('image', file);
-
             try {
                 const response = await fetch('https://api.imgur.com/3/image', {
                     method: 'POST',
-                    headers: {
-                        Authorization: 'Client-ID 6d93506cc27e293', // Updated Imgur Client ID
-                    },
+                    headers: { Authorization: 'Client-ID 6d93506cc27e293' },
                     body: formData,
                 });
-
                 const data = await response.json();
-                console.log('Imgur API Response:', data); // Log the API response for debugging
-
-                if (data.success) {
-                    // Ensure the link is a direct image link
-                    const directImageLink = data.data.link.replace(/^http:\/\//i, 'https://');
-                    return directImageLink; // Return the direct image URL
-                } else {
-                    throw new Error(data.data.error || 'Failed to upload image');
-                }
+                if (!data.success) throw new Error(data.data?.error || 'Upload failed');
+                return data.data.link.replace(/^http:/i, 'https:');
             } catch (error) {
-                console.error('Error uploading image:', error);
+                console.error('Upload error:', error);
                 alert(`Failed to upload payment slip: ${error.message}`);
                 return null;
             }
         }
 
-        // Function to handle payment slip submission
         async function submitPaymentSlip() {
+            console.log('submitPaymentSlip called');
             const fileInput = document.getElementById('payment-slip');
-            const file = fileInput.files[0];
-
+            const file = fileInput?.files[0];
             if (!file) {
                 alert('Please upload a payment slip.');
                 return;
             }
-
             const imageUrl = await uploadPaymentSlip(file);
             if (imageUrl) {
-                alert(`Payment slip uploaded successfully! URL: ${imageUrl}`);
-                // Show the WhatsApp button and reminder
-                document.getElementById('whatsapp-button').style.display = 'block';
-                document.getElementById('reminder').style.display = 'block';
-                // Store the image URL for WhatsApp
-                document.getElementById('whatsapp-button').setAttribute('data-image-url', imageUrl);
+                const whatsappButton = document.getElementById('whatsapp-button');
+                if (whatsappButton) {
+                    whatsappButton.style.display = 'block';
+                    whatsappButton.dataset.imageUrl = imageUrl;
+                    document.getElementById('reminder').style.display = 'block';
+                    alert(`Payment slip uploaded! URL: ${imageUrl}`);
+                }
             }
         }
 
-        // Function to send order to WhatsApp and reset page
-        function sendOrderToWhatsApp() {
-            // Get sender details
-            const senderName = document.getElementById('name').value;
-            const senderPhone = document.getElementById('tel').value;
-            const senderAddress = document.getElementById('address').value;
+        function resetForm() {
+            console.log('resetForm started');
+            const orderSummary = document.getElementById('order-summary');
+            const orderForm = document.getElementById('order-form');
+            const whatsappButton = document.getElementById('whatsapp-button');
+            const reminder = document.getElementById('reminder');
+            const paymentSlipPreview = document.getElementById('payment-slip-preview');
+            const ceDate = document.getElementById('ce-date');
+            const dayName = document.getElementById('day-name');
+            const summaryList = document.getElementById('summary-list');
+            const summaryTotal = document.getElementById('summary-total');
 
-            // Get order details
-            const orderSummary = document.getElementById('summary-list').innerText;
-            const total = document.getElementById('summary-total').innerText;
-            const imageUrl = document.getElementById('whatsapp-button').getAttribute('data-image-url');
+            // Hide summary and show form
+            if (orderSummary) {
+                orderSummary.style.display = 'none';
+                console.log('orderSummary hidden, display:', orderSummary.style.display);
+            }
+            if (orderForm) {
+                orderForm.style.display = 'block';
+                console.log('orderForm shown, display:', orderForm.style.display);
+                // Reset all inputs explicitly
+                orderForm.querySelectorAll('input[type="radio"]').forEach(radio => {
+                    radio.checked = false;
+                    console.log(`Reset radio ${radio.name} to unchecked`);
+                });
+                orderForm.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                    console.log(`Reset checkbox ${checkbox.value} to unchecked`);
+                });
+                orderForm.querySelectorAll('input[type="number"]').forEach(input => {
+                    input.value = '0';
+                    console.log(`Reset number input ${input.id} to 0, value:`, input.value);
+                });
+                orderForm.querySelectorAll('input[type="text"], input[type="tel"], textarea').forEach(input => {
+                    input.value = '';
+                    console.log(`Reset text input ${input.id} to empty`);
+                });
+                const select = orderForm.querySelector('select');
+                if (select) {
+                    select.selectedIndex = 0;
+                    console.log(`Reset select ${select.id} to first option`);
+                }
+            }
 
-            // Seller's WhatsApp number
-            const sellerWhatsAppNumber = '60189800195';
+            // Reset other elements
+            if (whatsappButton) {
+                whatsappButton.style.display = 'none';
+                whatsappButton.dataset.imageUrl = '';
+                console.log('whatsappButton reset');
+            }
+            if (reminder) {
+                reminder.style.display = 'none';
+                console.log('reminder reset');
+            }
+            if (paymentSlipPreview) {
+                paymentSlipPreview.style.display = 'none';
+                paymentSlipPreview.src = '#';
+                console.log('paymentSlipPreview reset');
+            }
+            if (ceDate) {
+                ceDate.textContent = 'CE Date: ';
+                console.log('ceDate reset');
+            }
+            if (dayName) {
+                dayName.textContent = 'Day: ';
+                console.log('dayName reset');
+            }
+            if (summaryList) {
+                summaryList.innerHTML = '';
+                console.log('summaryList cleared');
+            }
+            if (summaryTotal) {
+                summaryTotal.textContent = '';
+                console.log('summaryTotal cleared');
+            }
 
-            // Format the WhatsApp message
-            let message = `*Order Details:*\n\n` +
-                          `*Sender Information:*\n` +
-                          `Name: ${senderName}\n` +
-                          `Phone: ${senderPhone}\n` +
-                          `Address: ${senderAddress}\n\n` +
-                          `*Order Summary:*\n${orderSummary}\n${total}\n\n` +
-                          `*Payment Slip:* ${imageUrl}\n\n`;
-
-            const encodedMessage = encodeURIComponent(message);
-
-            // Create the WhatsApp URL with the seller's number
-            const whatsappUrl = `https://wa.me/${sellerWhatsAppNumber}?text=${encodedMessage}`;
-
-            // Open WhatsApp in a new tab
-            window.open(whatsappUrl, '_blank');
-
-            // Reset the page to initial state
-            document.getElementById('order-summary').style.display = 'none';
-            document.getElementById('order-form').style.display = 'block';
-            document.getElementById('whatsapp-button').style.display = 'none';
-            document.getElementById('reminder').style.display = 'none';
-            document.getElementById('payment-slip-preview').style.display = 'none';
-            document.getElementById('payment-slip-preview').src = '#';
-            
-            // Reset the form
-            document.getElementById('order-form').reset();
-            document.getElementById('ce-date').textContent = 'CE Date: ';
-            document.getElementById('day-name').textContent = 'Day: ';
+            console.log('resetForm completed');
         }
 
-        // Event listener for DOMContentLoaded
-        window.addEventListener('DOMContentLoaded', (event) => {
-            // Add event listeners for total calculation
-            const inputs = document.querySelectorAll('input[type="radio"], input[type="checkbox"]');
-            inputs.forEach(input => {
-                input.addEventListener('change', calculateTotal);
-            });
+        function sendOrderToWhatsApp() {
+            console.log('sendOrderToWhatsApp started');
+            const senderName = document.getElementById('name')?.value.trim();
+            const senderPhone = document.getElementById('tel')?.value.trim();
+            const senderAddress = document.getElementById('address')?.value.trim();
+            const summaryList = document.getElementById('summary-list');
+            const summaryTotal = document.getElementById('summary-total');
+            const whatsappButton = document.getElementById('whatsapp-button');
+            const notes = document.getElementById('notes');
 
-            // Add event listener for payment slip upload
-            document.getElementById('payment-slip').addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                const reader = new FileReader();
+            if (!senderName || !senderPhone || !senderAddress) {
+                alert('Please fill in all sender information.');
+                return;
+            }
 
-                reader.onload = function (e) {
-                    document.getElementById('payment-slip-preview').src = e.target.result;
-                    document.getElementById('payment-slip-preview').style.display = 'block';
-                };
+            if (!senderPhone.match(/^60\d{9,10}$/)) {
+                alert('Please enter a valid Malaysian phone number (e.g., 60123456789).');
+                return;
+            }
 
-                reader.readAsDataURL(file);
-            });
+            if (!summaryList || !summaryTotal || !whatsappButton || !notes) {
+                console.error('Missing elements in sendOrderToWhatsApp:', { summaryList, summaryTotal, whatsappButton, notes });
+                return;
+            }
 
-            // Add event listener for Ramadan day selection
-            document.getElementById('ramadan-day').addEventListener('change', updateSelectedDate);
+            const summaryItems = Array.from(summaryList.children).map(li => li.textContent.trim());
+            const orderSummaryText = summaryItems.map(item => {
+                if (item.startsWith('Notes:')) return `\n*${item}*`;
+                if (!item.startsWith('-')) return `\n*${item}*`;
+                return `  ${item}`;
+            }).join('\n');
 
-            // Populate Ramadan days dropdown
+            const total = summaryTotal.textContent;
+            const imageUrl = whatsappButton.dataset.imageUrl || 'Not provided';
+            const sellerWhatsAppNumber = '60189800195';
+
+            const message = `*Order Details*\n\n` +
+                           `*Sender Information*\n` +
+                           `Name: ${senderName}\n` +
+                           `Phone: ${senderPhone}\n` +
+                           `Address: ${senderAddress}\n\n` +
+                           `*Order Summary*\n${orderSummaryText}\n\n` +
+                           `*${total}*\n\n` +
+                           `*Payment Slip*\n${imageUrl}`;
+
+            console.log('Opening WhatsApp URL');
+            const whatsappUrl = `https://wa.me/${sellerWhatsAppNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+
+            // Reset form immediately with a slight delay to ensure DOM updates
+            console.log('Scheduling resetForm');
+            setTimeout(() => {
+                resetForm();
+                const successMessage = document.getElementById('success-message');
+                if (successMessage) {
+                    console.log('Showing success message');
+                    successMessage.style.display = 'block';
+                    setTimeout(() => {
+                        console.log('Hiding success message');
+                        successMessage.style.display = 'none';
+                        const orderFormCheck = document.getElementById('order-form');
+                        if (orderFormCheck) {
+                            orderFormCheck.style.display = 'block';
+                            console.log('orderForm display after timeout:', orderFormCheck.style.display);
+                        }
+                    }, 3000);
+                }
+            }, 100); // 100ms delay to allow WhatsApp window to open
+
+            console.log('sendOrderToWhatsApp completed');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded');
             const ramadanDaySelect = document.getElementById('ramadan-day');
-            const ramadanDays = generateRamadanDays();
-            ramadanDays.forEach((day, index) => {
+            if (!ramadanDaySelect) {
+                console.error('ramadan-day not found');
+                return;
+            }
+            ramadanDays.forEach(day => {
                 const option = document.createElement('option');
                 option.value = day.day;
                 option.textContent = `Day ${day.day} (${day.ceDate})`;
                 ramadanDaySelect.appendChild(option);
             });
+
+            ramadanDaySelect.addEventListener('change', updateSelectedDate);
+            const paymentSlipInput = document.getElementById('payment-slip');
+            if (paymentSlipInput) {
+                paymentSlipInput.addEventListener('change', (event) => {
+                    console.log('Payment slip changed');
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const preview = document.getElementById('payment-slip-preview');
+                            if (preview) {
+                                preview.src = e.target.result;
+                                preview.style.display = 'block';
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            const proceedButton = document.getElementById('proceed-btn');
+            if (proceedButton) {
+                console.log('Proceed button found');
+                proceedButton.addEventListener('click', () => {
+                    console.log('Proceed button clicked');
+                    proceedToSummary();
+                });
+            } else {
+                console.error('Proceed button not found');
+            }
         });
     </script>
 </head>
-
 <body>
-
-    <h1>Ramadan Food Order Confirmation</h1>
+    <h1>Food Order Confirmation</h1>
     <p class="early-bird">Early Bird Offer: The first 50 orders will receive a gift!</p>
+    <p id="success-message" class="success-message">Order sent successfully!</p>
 
-    <!-- Order Form -->
-    <form id="order-form">
+    <div id="order-form">
         <label for="ramadan-day">Select Ramadan Day:</label>
-        <select id="ramadan-day" name="ramadan-day" required>
+        <select id="ramadan-day" name="ramadan-day" aria-label="Select a Ramadan day">
             <option value="">Select a day</option>
         </select>
         <p id="ce-date">CE Date: </p>
         <p id="day-name">Day: </p>
 
         <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
+        <input type="text" id="name" name="name" aria-label="Your full name">
 
         <label for="tel">Phone Number:</label>
-        <input type="tel" id="tel" name="tel" required>
+        <input type="tel" id="tel" name="tel" aria-label="Your phone number (e.g., 60123456789)">
 
         <label for="address">Address:</label>
-        <textarea id="address" name="address" rows="4" required></textarea>
+        <textarea id="address" name="address" rows="4" aria-label="Your delivery address"></textarea>
 
-        <!-- Ramadan Pack Options -->
         <div class="pack">
             <div class="pack-title">Ramadan Pack Specific (RPS) - RM 6.50</div>
             <div class="menu-group">
@@ -420,20 +599,27 @@
                 <div class="menu-item">
                     <label><input type="radio" name="rp2c" value="nasigoreng"> Nasi Goreng</label>
                 </div>
+                <div class="menu-item">
+                    <label><input type="radio" name="rp2c" value="meegoreng"> Mee Goreng</label>
+                </div>
             </div>
             <div class="menu-group">
-                <div class="menu-group-title">Kuih</div>
+                <div class="menu-group-title">Kuih (RM 1 each)</div>
                 <div class="menu-item">
-                    <label><input type="checkbox" name="rp2c[]" value="karipap"> Kuih Karipap</label>
+                    <label><input type="checkbox" name="kuih" value="karipap"> Kuih Karipap</label>
+                    <input type="number" min="0" value="0" id="karipap-qty">
                 </div>
                 <div class="menu-item">
-                    <label><input type="checkbox" name="rp2c[]" value="paugoreng"> Kuih Pau Goreng Inti Kacang Merah</label>
+                    <label><input type="checkbox" name="kuih" value="paugoreng"> Kuih Pau Goreng Inti Kacang Merah</label>
+                    <input type="number" min="0" value="0" id="paugoreng-qty">
                 </div>
                 <div class="menu-item">
-                    <label><input type="checkbox" name="rp2c[]" value="apamkampung"> Kuih Apam Kampung</label>
+                    <label><input type="checkbox" name="kuih" value="apamkampung"> Kuih Apam Kampung</label>
+                    <input type="number" min="0" value="0" id="apamkampung-qty">
                 </div>
                 <div class="menu-item">
-                    <label><input type="checkbox" name="rp2c[]" value="lapisnyonya"> Kuih Lapis Nyonya</label>
+                    <label><input type="checkbox" name="kuih" value="lapisnyonya"> Kuih Lapis Nyonya</label>
+                    <input type="number" min="0" value="0" id="lapisnyonya-qty">
                 </div>
             </div>
         </div>
@@ -462,10 +648,28 @@
                     <label><input type="radio" name="rpnpb" value="ayamgoreng"> Ayam Goreng Berlado</label>
                 </div>
                 <div class="menu-item">
-                    <label><input type="radio" name="rpnpb" value="ayamlemak"> Masak Lemak Cili Api Ayam</label>
+                    <label><input type="radio" name="rpnpb" value="ayamlemak"> Ayam Masak Lemak Cili Api</label>
                 </div>
                 <div class="menu-item">
                     <label><input type="radio" name="rpnpb" value="ikankari"> Ikan Masak Kari Asam Pedas</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="pack">
+            <div class="pack-title">Additional Side Dishes</div>
+            <div class="menu-group">
+                <div class="menu-item">
+                    <label>Ayam Goreng (RM 3.50):</label>
+                    <input type="number" min="0" value="0" id="ayam-goreng-qty">
+                </div>
+                <div class="menu-item">
+                    <label>Telur Goreng (RM 1.50):</label>
+                    <input type="number" min="0" value="0" id="telur-goreng-qty">
+                </div>
+                <div class="menu-item">
+                    <label>Ikan Goreng (RM 4.00):</label>
+                    <input type="number" min="0" value="0" id="ikan-goreng-qty">
                 </div>
             </div>
         </div>
@@ -482,27 +686,26 @@
             </div>
         </div>
 
-        <button type="button" onclick="proceedToSummary()">Proceed</button>
-    </form>
+        <label for="notes">Additional Notes:</label>
+        <textarea id="notes" name="notes" rows="4" aria-label="Additional notes or special requests"></textarea>
 
-    <!-- Order Summary -->
+        <button type="button" id="proceed-btn" aria-label="View order summary">Proceed</button>
+    </div>
+
     <div id="order-summary">
         <h2>Order Summary</h2>
         <ul id="summary-list"></ul>
         <p id="summary-total"></p>
-        <img id="qr-code-image" src="https://i.imgur.com/6S0vvWu.jpeg" alt="QR Code">
+        <img id="qr-code-image" src="https://i.imgur.com/6S0vvWu.jpeg" alt="QR Code for payment">
         <p>Scan the QR code to make payment.</p>
-
         <div id="payment-section">
             <label for="payment-slip">Upload Payment Slip:</label>
-            <input type="file" id="payment-slip" name="payment-slip" accept="image/*" required>
-            <img id="payment-slip-preview" src="#" alt="Payment Slip Preview">
-            <button type="button" onclick="submitPaymentSlip()">Submit Payment Slip</button>
-            <button id="whatsapp-button" type="button" onclick="sendOrderToWhatsApp()" style="display: none;">Send Order to WhatsApp</button>
-            <p id="reminder" class="reminder" style="display: none;">Don't forget to click "Send Order to WhatsApp" to confirm your order!</p>
+            <input type="file" id="payment-slip" name="payment-slip" accept="image/*" aria-label="Upload payment slip image">
+            <img id="payment-slip-preview" src="#" alt="Preview of uploaded payment slip">
+            <button type="button" onclick="submitPaymentSlip()" aria-label="Submit payment slip">Submit Payment Slip</button>
+            <button id="whatsapp-button" type="button" onclick="sendOrderToWhatsApp()" style="display: none;" aria-label="Send order to WhatsApp">Send Order to WhatsApp</button>
+            <p id="reminder" class="reminder">Don't forget to click "Send Order to WhatsApp" to confirm your order!</p>
         </div>
     </div>
-
 </body>
-
 </html>
