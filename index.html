@@ -4,60 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Order Confirmation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 20px;
-            padding: 0;
-            background-color: #f5f5f5;
-            color: #333;
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7fa;
+            color: #2c3e50;
+            line-height: 1.6;
         }
         h1 {
             text-align: center;
-            font-size: 24px;
-            color: #1a73e8;
+            font-size: 28px;
+            color: #2980b9;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
         }
         .pack {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
             background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 25px;
         }
-        .menu-group {
+        .pack-title {
+            font-size: 20px;
+            color: #2c3e50;
+            font-weight: 500;
             margin-bottom: 15px;
         }
+        .menu-group {
+            margin-bottom: 20px;
+        }
         .menu-group-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #1a73e8;
+            font-weight: 500;
+            font-size: 16px;
+            color: #3498db;
+            margin-bottom: 10px;
         }
         .menu-item {
-            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        .menu-item:hover {
+            background-color: #f9f9f9;
+        }
+        .menu-item .dish-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: #ddd; /* Dummy placeholder */
+        }
+        .menu-item label {
+            flex: 1;
+            margin: 0;
+            font-weight: 400;
             display: flex;
             align-items: center;
         }
-        .menu-item input[type="number"] {
+        .menu-item select {
+            width: 80px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
             margin-left: 10px;
-            width: 60px;
+            transition: border-color 0.3s;
+        }
+        .menu-item select:disabled {
+            opacity: 0.5;
+            background-color: #f0f0f0;
+        }
+        .menu-item select:focus {
+            border-color: #3498db;
+            outline: none;
         }
         #order-summary {
             display: none;
-            margin-top: 20px;
             background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 25px;
+            transition: opacity 0.3s ease;
+        }
+        #order-summary h2 {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 15px;
         }
         #qr-code-image {
             max-width: 150px;
             max-height: 150px;
-            margin-top: 10px;
+            margin-top: 15px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
         #payment-slip-preview {
             max-width: 200px;
             max-height: 200px;
-            margin-top: 10px;
+            margin-top: 15px;
             border: 1px solid #ddd;
             border-radius: 5px;
             display: none;
@@ -66,48 +121,85 @@
             margin-top: 20px;
         }
         button {
-            padding: 10px 20px;
-            background-color: #1a73e8;
+            padding: 12px 24px;
+            background-color: #3498db;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            margin-top: 10px;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.1s;
         }
         button:hover {
-            background-color: #1557b0;
+            background-color: #2980b9;
+        }
+        button:active {
+            transform: scale(0.98);
         }
         .reminder {
-            color: #d9534f;
-            font-weight: bold;
-            margin-top: 10px;
+            color: #e74c3c;
+            font-weight: 500;
+            margin-top: 15px;
             display: none;
         }
         .early-bird {
-            color: #4CAF50;
-            font-weight: bold;
-            margin-top: 10px;
+            color: #27ae60;
+            font-weight: 500;
+            margin-top: 15px;
+            text-align: center;
         }
         .success-message {
-            color: #4CAF50;
-            font-weight: bold;
-            margin-top: 10px;
+            color: #27ae60;
+            font-weight: 500;
+            margin-top: 15px;
             display: none;
             text-align: center;
+            animation: fadeInOut 3s ease;
         }
         .phone-hint {
             font-size: 12px;
-            color: #888;
-            margin-top: 2px;
+            color: #7f8c8d;
+            margin-top: 5px;
             display: none;
         }
         .phone-hint.error {
-            color: #d9534f;
+            color: #e74c3c;
+        }
+        label {
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            display: block;
+        }
+        input[type="text"], input[type="tel"], textarea, select:not(.qty-select) {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, input[type="tel"]:focus, textarea:focus, select:not(.qty-select):focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        textarea {
+            resize: vertical;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
         }
         @media (max-width: 600px) {
-            h1 { font-size: 20px; }
-            .pack { padding: 10px; }
+            h1 { font-size: 24px; }
+            .pack { padding: 15px; }
             button { width: 100%; padding: 12px; }
+            .container { padding: 10px; }
+            .menu-item select { width: 70px; }
+            .menu-item .dish-icon { width: 20px; height: 20px; }
         }
     </style>
     <script>
@@ -179,6 +271,14 @@
             }
         }
 
+        function toggleQtySelect(checkbox) {
+            const qtySelect = document.getElementById(`${checkbox.value}-qty`);
+            if (qtySelect) {
+                qtySelect.disabled = !checkbox.checked;
+                qtySelect.value = checkbox.checked ? '1' : '0'; // Default to 1 when checked
+            }
+        }
+
         function calculateTotal() {
             console.log('calculateTotal called');
             let total = 0;
@@ -191,35 +291,34 @@
             };
 
             Object.keys(packs).forEach(name => {
-                const checkedItem = document.querySelector(`input[name="${name}"]:checked`);
-                if (checkedItem) {
-                    console.log(`Adding ${name}: ${packs[name]}`);
-                    total += packs[name];
-                }
+                document.querySelectorAll(`input[name="${name}"]:checked`).forEach(item => {
+                    const qtySelect = document.getElementById(`${item.value}-qty`);
+                    const qty = qtySelect ? (parseInt(qtySelect.value) || 1) : 1;
+                    console.log(`Adding ${name} (${item.value}): ${packs[name]} x ${qty}`);
+                    total += packs[name] * qty;
+                });
             });
 
             const ayamGorengQty = document.getElementById('ayam-goreng-qty');
             const telurGorengQty = document.getElementById('telur-goreng-qty');
             const ikanGorengQty = document.getElementById('ikan-goreng-qty');
             if (!ayamGorengQty || !telurGorengQty || !ikanGorengQty) {
-                console.error('Missing qty inputs:', { ayamGorengQty, telurGorengQty, ikanGorengQty });
+                console.error('Missing qty selects:', { ayamGorengQty, telurGorengQty, ikanGorengQty });
                 return 0;
             }
             const ayamQty = parseInt(ayamGorengQty.value) || 0;
             const telurQty = parseInt(telurGorengQty.value) || 0;
             const ikanQty = parseInt(ikanGorengQty.value) || 0;
             console.log(`Side dishes - Ayam: ${ayamQty} x 3.50, Telur: ${telurQty} x 1.50, Ikan: ${ikanQty} x 4.00`);
-            total += ayamQty * 3.50;
-            total += telurQty * 1.50;
-            total += ikanQty * 4.00;
+            total += ayamQty * 3.50 + telurQty * 1.50 + ikanQty * 4.00;
 
             document.querySelectorAll('input[name="kuih"]:checked').forEach(item => {
-                const qtyInput = document.getElementById(`${item.value}-qty`);
-                if (!qtyInput) {
-                    console.warn('No qty input for kuih:', item);
+                const qtySelect = document.getElementById(`${item.value}-qty`);
+                if (!qtySelect) {
+                    console.warn('No qty select for kuih:', item);
                     return;
                 }
-                const qty = parseInt(qtyInput.value) || 0;
+                const qty = parseInt(qtySelect.value) || 0;
                 console.log(`Kuih ${item.value}: ${qty} x 1.00`);
                 total += qty * 1.00;
             });
@@ -280,7 +379,7 @@
                 };
                 const itemsByPack = {};
 
-                const selectedItems = document.querySelectorAll('input[type="radio"]:checked, input[type="checkbox"]:checked');
+                const selectedItems = document.querySelectorAll('input[type="checkbox"]:checked');
                 console.log('Selected items count:', selectedItems.length);
                 selectedItems.forEach((item, index) => {
                     console.log(`Item ${index}:`, item);
@@ -290,16 +389,11 @@
                     }
                     const packName = item.name;
                     let packTitle = packTitles[packName] || 'Unknown';
-                    let qtyInput = item.parentElement.querySelector('input[type="number"]');
-                    let qty = 1;
+                    let qtySelect = document.getElementById(`${item.value}-qty`);
+                    let qty = qtySelect ? (parseInt(qtySelect.value) || 1) : 1;
 
                     if (packName === 'kuih') {
                         packTitle = 'RP2C'; // Nest kuih under RP2C
-                        qtyInput = document.getElementById(`${item.value}-qty`);
-                        qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
-                        console.log(`Kuih item ${item.value} qty input:`, qtyInput ? qtyInput.value : 'N/A', 'Parsed qty:', qty);
-                    } else {
-                        qty = 1; // Radio buttons and combo items default to 1
                     }
 
                     const itemText = `${item.labels[0].textContent.trim()} (Qty: ${qty})`;
@@ -398,7 +492,6 @@
             const summaryList = document.getElementById('summary-list');
             const summaryTotal = document.getElementById('summary-total');
 
-            // Hide summary and show form
             if (orderSummary) {
                 orderSummary.style.display = 'none';
                 console.log('orderSummary hidden, display:', orderSummary.style.display);
@@ -406,31 +499,27 @@
             if (orderForm) {
                 orderForm.style.display = 'block';
                 console.log('orderForm shown, display:', orderForm.style.display);
-                // Reset all inputs explicitly
-                orderForm.querySelectorAll('input[type="radio"]').forEach(radio => {
-                    radio.checked = false;
-                    console.log(`Reset radio ${radio.name} to unchecked`);
-                });
                 orderForm.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                     checkbox.checked = false;
+                    const qtySelect = document.getElementById(`${checkbox.value}-qty`);
+                    if (qtySelect) qtySelect.disabled = true;
                     console.log(`Reset checkbox ${checkbox.value} to unchecked`);
                 });
-                orderForm.querySelectorAll('input[type="number"]').forEach(input => {
-                    input.value = '0';
-                    console.log(`Reset number input ${input.id} to 0, value:`, input.value);
+                orderForm.querySelectorAll('select.qty-select').forEach(select => {
+                    select.value = '0';
+                    console.log(`Reset select ${select.id} to 0, value:`, select.value);
                 });
                 orderForm.querySelectorAll('input[type="text"], input[type="tel"], textarea').forEach(input => {
                     input.value = '';
                     console.log(`Reset text input ${input.id} to empty`);
                 });
-                const select = orderForm.querySelector('select');
+                const select = orderForm.querySelector('select#ramadan-day');
                 if (select) {
                     select.selectedIndex = 0;
                     console.log(`Reset select ${select.id} to first option`);
                 }
             }
 
-            // Reset other elements
             if (whatsappButton) {
                 whatsappButton.style.display = 'none';
                 whatsappButton.dataset.imageUrl = '';
@@ -480,10 +569,8 @@
                 return;
             }
 
-            // Lenient phone validation - warn but proceed
             if (!validatePhoneNumber(senderPhone)) {
                 console.log('Phone number format not ideal:', senderPhone);
-                // No alert, just proceed with a hint already shown
             }
 
             if (!summaryList || !summaryTotal || !whatsappButton || !notes) {
@@ -572,6 +659,11 @@
                 telInput.addEventListener('blur', updatePhoneHint);
             }
 
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', () => toggleQtySelect(checkbox));
+                toggleQtySelect(checkbox); // Initial state
+            });
+
             const proceedButton = document.getElementById('proceed-btn');
             if (proceedButton) {
                 console.log('Proceed button found');
@@ -586,160 +678,320 @@
     </script>
 </head>
 <body>
-    <h1>Food Order Confirmation</h1>
-    <p class="early-bird">Early Bird Offer: The first 50 orders will receive a gift!</p>
-    <p id="success-message" class="success-message">Order sent successfully!</p>
+    <div class="container">
+        <h1>Food Order Confirmation</h1>
+        <p class="early-bird">Early Bird Offer: The first 50 orders will receive a gift!</p>
+        <p id="success-message" class="success-message">Order sent successfully!</p>
 
-    <div id="order-form">
-        <label for="ramadan-day">Select Ramadan Day:</label>
-        <select id="ramadan-day" name="ramadan-day" aria-label="Select a Ramadan day">
-            <option value="">Select a day</option>
-        </select>
-        <p id="ce-date">CE Date: </p>
-        <p id="day-name">Day: </p>
+        <div id="order-form">
+            <label for="ramadan-day">Select Ramadan Day:</label>
+            <select id="ramadan-day" name="ramadan-day" aria-label="Select a Ramadan day">
+                <option value="">Select a day</option>
+            </select>
+            <p id="ce-date">CE Date: </p>
+            <p id="day-name">Day: </p>
 
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" aria-label="Your full name">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" aria-label="Your full name">
 
-        <label for="tel">Phone Number:</label>
-        <input type="tel" id="tel" name="tel" aria-label="Your phone number (e.g., 60123456789)">
-        <span id="phone-hint" class="phone-hint"></span>
+            <label for="tel">Phone Number:</label>
+            <input type="tel" id="tel" name="tel" aria-label="Your phone number (e.g., 60123456789)">
+            <span id="phone-hint" class="phone-hint"></span>
 
-        <label for="address">Address:</label>
-        <textarea id="address" name="address" rows="4" aria-label="Your delivery address"></textarea>
+            <label for="address">Address:</label>
+            <textarea id="address" name="address" rows="4" aria-label="Your delivery address"></textarea>
 
-        <div class="pack">
-            <div class="pack-title">Ramadan Pack Specific (RPS) - RM 6.50</div>
-            <div class="menu-group">
-                <div class="menu-group-title">Main Dish</div>
-                <div class="menu-item">
-                    <label><input type="radio" name="rps" value="nasilemak"> Nasi Lemak Pandan Ayam</label>
-                </div>
-                <div class="menu-item">
-                    <label><input type="radio" name="rps" value="nasikakvogue"> Nasi Kak Vogue</label>
-                </div>
-                <div class="menu-item">
-                    <label><input type="radio" name="rps" value="lontong"> Lontong</label>
-                </div>
-                <div class="menu-item">
-                    <label><input type="radio" name="rps" value="bubur"> Bubur Nasi Berlauk</label>
+            <div class="pack">
+                <div class="pack-title">Ramadan Pack Specific (RPS) - RM 6.50</div>
+                <div class="menu-group">
+                    <div class="menu-group-title">Main Dish</div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="rps" value="nasilemak"> Nasi Lemak Pandan Ayam</label>
+                        <select id="nasilemak-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="rps" value="nasikakvogue"> Nasi Kak Vogue</label>
+                        <select id="nasikakvogue-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="rps" value="lontong"> Lontong</label>
+                        <select id="lontong-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="rps" value="bubur"> Bubur Nasi Berlauk</label>
+                        <select id="bubur-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
                 </div>
             </div>
+
+            <div class="pack">
+                <div class="pack-title">Ramadan Pack 2 Compartment (RP2C) - RM 5</div>
+                <div class="menu-group">
+                    <div class="menu-group-title">Main Dish</div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="rp2c" value="nasigoreng"> Nasi Goreng</label>
+                        <select id="nasigoreng-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="rp2c" value="meegoreng"> Mee Goreng</label>
+                        <select id="meegoreng-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-group-title">Kuih (RM 1 each)</div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="kuih" value="karipap"> Kuih Karipap</label>
+                        <select id="karipap-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="kuih" value="paugoreng"> Kuih Pau Goreng Inti Kacang Merah</label>
+                        <select id="paugoreng-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="kuih" value="apamkampung"> Kuih Apam Kampung</label>
+                        <select id="apamkampung-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="kuih" value="lapisnyonya"> Kuih Lapis Nyonya</label>
+                        <select id="lapisnyonya-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pack">
+                <div class="pack-title">Ramadan Pack Roti (RPR) - RM 5</div>
+                <div class="menu-group">
+                    <div class="menu-group-title">Main Dish</div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="rpr" value="rotiburger"> Roti Burger Korean Garlic Cheese</label>
+                        <select id="rotiburger-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="rpr" value="rotibeef"> Roti Beef/Ayam Ramly Huzza</label>
+                        <select id="rotibeef-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="rpr" value="rotibenjo"> Roti Benjo Huzza</label>
+                        <select id="rotibenjo-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pack">
+                <div class="pack-title">Ramadan Pack Nasi Putih Berlauk (RPNPB) - RM 10</div>
+                <div class="menu-group">
+                    <div class="menu-group-title">Main Dish</div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="rpnpb" value="ayamgoreng"> Ayam Goreng Berlado</label>
+                        <select id="ayamgoreng-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="rpnpb" value="ayamlemak"> Ayam Masak Lemak Cili Api</label>
+                        <select id="ayamlemak-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="rpnpb" value="ikankari"> Ikan Masak Kari Asam Pedas</label>
+                        <select id="ikankari-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pack">
+                <div class="pack-title">Additional Side Dishes</div>
+                <div class="menu-group">
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label>Ayam Goreng (RM 3.50):</label>
+                        <select id="ayam-goreng-qty" class="qty-select">
+                            <option value="0">0</option>
+                            <option value="10">10</option>
+                            <option value="30">30</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label>Telur Goreng (RM 1.50):</label>
+                        <select id="telur-goreng-qty" class="qty-select">
+                            <option value="0">0</option>
+                            <option value="10">10</option>
+                            <option value="30">30</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label>Ikan Goreng (RM 4.00):</label>
+                        <select id="ikan-goreng-qty" class="qty-select">
+                            <option value="0">0</option>
+                            <option value="10">10</option>
+                            <option value="30">30</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pack">
+                <div class="pack-title">Ramadan Pack Combo - Add RM 3</div>
+                <div class="menu-group">
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="combo" value="tehais"> Teh Ais Kaw</label>
+                        <select id="tehais-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="menu-item">
+                        <span class="dish-icon"></span>
+                        <label><input type="checkbox" name="combo" value="fruitcuts"> Fruit Cuts</label>
+                        <select id="fruitcuts-qty" class="qty-select" disabled>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <label for="notes">Additional Notes:</label>
+            <textarea id="notes" name="notes" rows="4" aria-label="Additional notes or special requests"></textarea>
+
+            <button type="button" id="proceed-btn" aria-label="View order summary">Proceed</button>
         </div>
 
-        <div class="pack">
-            <div class="pack-title">Ramadan Pack 2 Compartment (RP2C) - RM 5</div>
-            <div class="menu-group">
-                <div class="menu-group-title">Main Dish</div>
-                <div class="menu-item">
-                    <label><input type="radio" name="rp2c" value="nasigoreng"> Nasi Goreng</label>
-                </div>
-                <div class="menu-item">
-                    <label><input type="radio" name="rp2c" value="meegoreng"> Mee Goreng</label>
-                </div>
+        <div id="order-summary">
+            <h2>Order Summary</h2>
+            <ul id="summary-list"></ul>
+            <p id="summary-total"></p>
+            <img id="qr-code-image" src="https://i.imgur.com/6S0vvWu.jpeg" alt="QR Code for payment">
+            <p>Scan the QR code to make payment.</p>
+            <div id="payment-section">
+                <label for="payment-slip">Upload Payment Slip:</label>
+                <input type="file" id="payment-slip" name="payment-slip" accept="image/*" aria-label="Upload payment slip image">
+                <img id="payment-slip-preview" src="#" alt="Preview of uploaded payment slip">
+                <button type="button" onclick="submitPaymentSlip()" aria-label="Submit payment slip">Submit Payment Slip</button>
+                <button id="whatsapp-button" type="button" onclick="sendOrderToWhatsApp()" style="display: none;" aria-label="Send order to WhatsApp">Send Order to WhatsApp</button>
+                <p id="reminder" class="reminder">Don't forget to click "Send Order to WhatsApp" to confirm your order!</p>
             </div>
-            <div class="menu-group">
-                <div class="menu-group-title">Kuih (RM 1 each)</div>
-                <div class="menu-item">
-                    <label><input type="checkbox" name="kuih" value="karipap"> Kuih Karipap</label>
-                    <input type="number" min="0" value="0" id="karipap-qty">
-                </div>
-                <div class="menu-item">
-                    <label><input type="checkbox" name="kuih" value="paugoreng"> Kuih Pau Goreng Inti Kacang Merah</label>
-                    <input type="number" min="0" value="0" id="paugoreng-qty">
-                </div>
-                <div class="menu-item">
-                    <label><input type="checkbox" name="kuih" value="apamkampung"> Kuih Apam Kampung</label>
-                    <input type="number" min="0" value="0" id="apamkampung-qty">
-                </div>
-                <div class="menu-item">
-                    <label><input type="checkbox" name="kuih" value="lapisnyonya"> Kuih Lapis Nyonya</label>
-                    <input type="number" min="0" value="0" id="lapisnyonya-qty">
-                </div>
-            </div>
-        </div>
-
-        <div class="pack">
-            <div class="pack-title">Ramadan Pack Roti (RPR) - RM 5</div>
-            <div class="menu-group">
-                <div class="menu-group-title">Main Dish</div>
-                <div class="menu-item">
-                    <label><input type="radio" name="rpr" value="rotiburger"> Roti Burger Korean Garlic Cheese</label>
-                </div>
-                <div class="menu-item">
-                    <label><input type="radio" name="rpr" value="rotibeef"> Roti Beef/Ayam Ramly Huzza</label>
-                </div>
-                <div class="menu-item">
-                    <label><input type="radio" name="rpr" value="rotibenjo"> Roti Benjo Huzza</label>
-                </div>
-            </div>
-        </div>
-
-        <div class="pack">
-            <div class="pack-title">Ramadan Pack Nasi Putih Berlauk (RPNPB) - RM 10</div>
-            <div class="menu-group">
-                <div class="menu-group-title">Main Dish</div>
-                <div class="menu-item">
-                    <label><input type="radio" name="rpnpb" value="ayamgoreng"> Ayam Goreng Berlado</label>
-                </div>
-                <div class="menu-item">
-                    <label><input type="radio" name="rpnpb" value="ayamlemak"> Ayam Masak Lemak Cili Api</label>
-                </div>
-                <div class="menu-item">
-                    <label><input type="radio" name="rpnpb" value="ikankari"> Ikan Masak Kari Asam Pedas</label>
-                </div>
-            </div>
-        </div>
-
-        <div class="pack">
-            <div class="pack-title">Additional Side Dishes</div>
-            <div class="menu-group">
-                <div class="menu-item">
-                    <label>Ayam Goreng (RM 3.50):</label>
-                    <input type="number" min="0" value="0" id="ayam-goreng-qty">
-                </div>
-                <div class="menu-item">
-                    <label>Telur Goreng (RM 1.50):</label>
-                    <input type="number" min="0" value="0" id="telur-goreng-qty">
-                </div>
-                <div class="menu-item">
-                    <label>Ikan Goreng (RM 4.00):</label>
-                    <input type="number" min="0" value="0" id="ikan-goreng-qty">
-                </div>
-            </div>
-        </div>
-
-        <div class="pack">
-            <div class="pack-title">Ramadan Pack Combo - Add RM 3</div>
-            <div class="menu-group">
-                <div class="menu-item">
-                    <label><input type="checkbox" name="combo" value="tehais"> Teh Ais Kaw</label>
-                </div>
-                <div class="menu-item">
-                    <label><input type="checkbox" name="combo" value="fruitcuts"> Fruit Cuts</label>
-                </div>
-            </div>
-        </div>
-
-        <label for="notes">Additional Notes:</label>
-        <textarea id="notes" name="notes" rows="4" aria-label="Additional notes or special requests"></textarea>
-
-        <button type="button" id="proceed-btn" aria-label="View order summary">Proceed</button>
-    </div>
-
-    <div id="order-summary">
-        <h2>Order Summary</h2>
-        <ul id="summary-list"></ul>
-        <p id="summary-total"></p>
-        <img id="qr-code-image" src="https://i.imgur.com/6S0vvWu.jpeg" alt="QR Code for payment">
-        <p>Scan the QR code to make payment.</p>
-        <div id="payment-section">
-            <label for="payment-slip">Upload Payment Slip:</label>
-            <input type="file" id="payment-slip" name="payment-slip" accept="image/*" aria-label="Upload payment slip image">
-            <img id="payment-slip-preview" src="#" alt="Preview of uploaded payment slip">
-            <button type="button" onclick="submitPaymentSlip()" aria-label="Submit payment slip">Submit Payment Slip</button>
-            <button id="whatsapp-button" type="button" onclick="sendOrderToWhatsApp()" style="display: none;" aria-label="Send order to WhatsApp">Send Order to WhatsApp</button>
-            <p id="reminder" class="reminder">Don't forget to click "Send Order to WhatsApp" to confirm your order!</p>
         </div>
     </div>
 </body>
